@@ -1,0 +1,65 @@
+# Habib Distribution OS — cron schedule
+# All times UTC. Run: crontab -u habib deploy/crontab (from root)
+# Or as habib user: crontab deploy/crontab
+#
+# Sync layer runs first (populates tables), then agents read from them.
+# Agents are staggered 30min apart so they don't contend for CPU/memory.
+
+SHELL=/bin/bash
+PATH=/home/habib/anabtawi-os/venv/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PYTHONPATH=/home/habib/anabtawi-os
+
+# ─── Sync layer ──────────────────────────────────────────────────────────────
+
+# Inventory: every hour at :00 (fast, ~5s, keep data fresh)
+0 * * * *   cd /home/habib/anabtawi-os && python3 -m sync.jobs.inventory_sync  >> /var/log/habib/inventory_sync.log 2>&1
+
+# Orders: every hour at :15
+15 * * * *  cd /home/habib/anabtawi-os && python3 -m sync.jobs.orders_sync     >> /var/log/habib/orders_sync.log 2>&1
+
+# Expire stale approvals: every hour at :30
+30 * * * *  cd /home/habib/anabtawi-os && python3 -m sync.jobs.expire_approvals >> /var/log/habib/expire_approvals.log 2>&1
+
+# Listings: daily 04:30 (slow SP-API report, run well before agents)
+30 4 * * *  cd /home/habib/anabtawi-os && python3 -m sync.jobs.listings_sync   >> /var/log/habib/listings_sync.log 2>&1
+
+# Fees/profit: daily 05:00
+0 5 * * *   cd /home/habib/anabtawi-os && python3 -m sync.jobs.fees_sync       >> /var/log/habib/fees_sync.log 2>&1
+
+# PPC stats: daily 05:10 (requires ADS_API_* creds — blocked until configured)
+10 5 * * *  cd /home/habib/anabtawi-os && python3 -m sync.jobs.ppc_sync        >> /var/log/habib/ppc_sync.log 2>&1
+
+# Reviews: weekly Sunday 04:00
+0 4 * * 0   cd /home/habib/anabtawi-os && python3 -m sync.jobs.reviews_sync    >> /var/log/habib/reviews_sync.log 2>&1
+
+# Competitor snapshots: weekly Monday 09:00
+0 9 * * 1   cd /home/habib/anabtawi-os && python3 -m sync.jobs.competitor_sync >> /var/log/habib/competitor_sync.log 2>&1
+
+# ─── Agent layer (after sync is done) ────────────────────────────────────────
+
+# Inventory Agent: daily 05:30 (after inventory + orders sync, before listings)
+30 5 * * *  cd /home/habib/anabtawi-os && python3 -m agents.inventory_agent    >> /var/log/habib/inventory_agent.log 2>&1
+
+# PPC Agent: daily 06:00 (placeholder — not built yet)
+# 0 6 * * *   cd /home/habib/anabtawi-os && python3 -m agents.ppc_agent        >> /var/log/habib/ppc_agent.log 2>&1
+
+# Competitor Intel Agent: daily 06:30 (placeholder — not built yet)
+# 30 6 * * *  cd /home/habib/anabtawi-os && python3 -m agents.competitor_agent >> /var/log/habib/competitor_agent.log 2>&1
+
+# ─── Daily brief ─────────────────────────────────────────────────────────────
+
+# Daily brief to Telegram: 07:00 (after all agents have run)
+0 7 * * *   cd /home/habib/anabtawi-os && python3 -m tgbot.daily_brief         >> /var/log/habib/daily_brief.log 2>&1
+
+# ─── Consolidation (knowledge compounding) ───────────────────────────────────
+
+# Weekly pattern consolidation: Saturday 20:00 UTC
+# 0 20 * * 6  cd /home/habib/anabtawi-os && python3 -m consolidation.weekly_patterns >> /var/log/habib/weekly.log 2>&1
+
+# Monthly review + wiki compile: 1st of month 08:00 UTC
+# 0 8 1 * *   cd /home/habib/anabtawi-os && python3 -m consolidation.monthly_review  >> /var/log/habib/monthly.log 2>&1
+
+# ─── Log hygiene ─────────────────────────────────────────────────────────────
+
+# Truncate logs over 10MB: daily midnight
+0 0 * * *   find /var/log/habib -name "*.log" -size +10M -exec truncate -s 0 {} \;

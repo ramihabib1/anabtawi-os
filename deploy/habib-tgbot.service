@@ -1,0 +1,24 @@
+[Unit]
+Description=Habib OS — Telegram Bot
+Documentation=https://github.com/anabtawi/habib-os
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=habib
+Group=habib
+WorkingDirectory=/home/habib/anabtawi-os
+EnvironmentFile=/home/habib/anabtawi-os/.env
+ExecStart=/home/habib/anabtawi-os/venv/bin/python3 -m tgbot.bot
+Restart=always
+RestartSec=15
+# Give it 30s to start before systemd marks it failed
+TimeoutStartSec=30
+# Log stdout/stderr to journald (readable via: journalctl -u habib-tgbot -f)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=habib-tgbot
+
+[Install]
+WantedBy=multi-user.target

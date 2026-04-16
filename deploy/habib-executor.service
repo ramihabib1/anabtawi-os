@@ -1,0 +1,22 @@
+[Unit]
+Description=Habib OS — Executor Daemon (SP-API writes)
+Documentation=https://github.com/anabtawi/habib-os
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=habib
+Group=habib
+WorkingDirectory=/home/habib/anabtawi-os
+EnvironmentFile=/home/habib/anabtawi-os/.env
+ExecStart=/home/habib/anabtawi-os/venv/bin/python3 -m executor.executor
+Restart=always
+RestartSec=15
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=habib-executor
+
+[Install]
+WantedBy=multi-user.target
