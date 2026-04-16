@@ -113,7 +113,7 @@ class BaseAgent:
         for obs in observations:
             try:
                 self.memory.add(
-                    messages=[{"role": "assistant", "content": obs["text"]}],
+                    messages=[{"role": "user", "content": obs["text"]}],
                     user_id="habib_distribution",
                     metadata={
                         "agent": self.agent_name,
