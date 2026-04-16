@@ -1,0 +1,23 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Hetzner
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: habib
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/habib/anabtawi-os
+            git pull origin main
+            venv/bin/pip install -r requirements.txt -q
+            sudo systemctl restart habib-tgbot habib-executor
+            echo "Deploy complete $(date -u)"
