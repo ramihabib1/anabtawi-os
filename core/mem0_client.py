@@ -24,10 +24,10 @@ def get_memory() -> Memory | None:
 def _init_memory() -> Memory:
     config = {
         "llm": {
-            "provider": "anthropic",
+            "provider": "openai",
             "config": {
-                "model": "claude-sonnet-4-20250514",
-                "api_key": ANTHROPIC_API_KEY,
+                "model": "gpt-4o-mini",
+                "api_key": OPENAI_API_KEY,
             },
         },
         "embedder": {
