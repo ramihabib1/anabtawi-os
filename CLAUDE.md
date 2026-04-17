@@ -1771,3 +1771,175 @@ httpx>=0.27.0
 ---
 
 *This document is the complete architectural specification for the Habib Distribution OS. Implementation begins with Phase 0.*
+
+<!-- GSD:project-start source:PROJECT.md -->
+## Project
+
+**Habib Distribution OS**
+
+An autonomous business operating system for a family-run Amazon FBA distribution company (~30 SKUs of Middle Eastern food products). Three AI agents run daily, accumulate knowledge over time via Mem0, and surface intelligence to three operators — Rami (technical/ops), Father (finance), and Brother (sales/marketing) — through Telegram and a Next.js dashboard. The system is live with foundation through Phase 3 built and running on Hetzner. The remaining work is the intelligence layer (knowledge compounding) and the visibility layer (dashboard) that turn the system from a daily reporter into a compounding business brain.
+
+**Core Value:** Knowledge that compounds over time. After 6 months, the system should know more about Habib Distribution's market — seasonal patterns, competitor behavior, PPC dynamics, stockout risk factors — than any competitor's AI, because every observation is captured, synthesized against real outcomes, and promoted into validated playbooks. The wiki becomes the institutional memory of the business.
+
+### Constraints
+
+- **Solo operator**: Rami maintains everything — no DevOps team. Every component must be self-healing or fail with a clear Telegram alert.
+- **Hetzner CX22**: 2 vCPU, 4GB RAM. Sequential agent runs (not parallel) to avoid resource contention. Upgrade to CX32 if memory pressure occurs.
+- **Approval invariant**: No financial action without explicit human approval. Hard requirement — enforced at agent level, executor level, and Telegram level.
+- **SP-API access**: Agents never hold SP-API write credentials. Writes go through Executor only.
+- **Cost target**: $25-70/month total (infra + AI). Track token spend per agent run in agent_runs table.
+- **Model allocation**: Claude Sonnet for daily agent runs and weekly consolidation; Claude Opus for monthly review only (cost control).
+<!-- GSD:project-end -->
+
+<!-- GSD:stack-start source:codebase/STACK.md -->
+## Technology Stack
+
+## Language & Runtime
+- **Python 3.12** — all backend services (agents, sync, executor, bot)
+- **Node.js** — only for GSD tooling (`.claude/` directory), not business logic
+## Dependency Manifest
+## Frameworks & Libraries (by layer)
+### Agent Layer (`agents/`, `core/`)
+- **anthropic Python SDK** — direct API calls with tool-use JSON schema
+- **supabase-py** (synchronous client) — reads/writes via Supabase REST API
+- **Mem0 OSS** — memory add/search over pgvector
+- Standard `logging` module
+### Sync Layer (`sync/`)
+- **httpx** (async) — custom SigV4-signed requests to SP-API
+- **boto3 + STS** — IAM role assumption for SP-API AWS auth
+- **structlog** — structured JSON logs (production), colored console (dev)
+- **tenacity** — exponential backoff with jitter on all SP-API calls
+- **schedule** — daemon-based job scheduling (alternative to cron)
+- **supabase-py** (async) — DB writes
+### Executor (`executor/`)
+- **python-amazon-sp-api** — higher-level SP-API wrapper for price/listing writes
+- Standard `logging`, `time.sleep` polling loop
+### Telegram Bot (`tgbot/`)
+- **python-telegram-bot[job-queue]** — bot polling + JobQueue for repeating tasks
+## Models
+- **Daily agents:** `claude-sonnet-4-20250514` (configured in `core/config.py:MODEL_DAILY`)
+- **Consolidation:** `claude-opus-4-20250514` (configured in `core/config.py:MODEL_CONSOLIDATION`)
+- **Mem0 LLM:** `gpt-4o-mini` (OpenAI — fact extraction)
+- **Mem0 embeddings:** `text-embedding-3-small` (OpenAI)
+## Configuration
+- `L1_RULES` — immutable business rules string embedded in every agent system prompt
+- `MODEL_DAILY`, `MODEL_CONSOLIDATION` — model ID strings
+- Marketplace IDs: `SP_API_MARKETPLACE_CA = "A2EUQ1WTGCTBG2"`, `SP_API_MARKETPLACE_US = "ATVPDKIKX0DER"`
+- `PROBE_ASIN = "B0FT3HN2XV"` — used for seller ID discovery
+## Infrastructure
+- **Hetzner CX22** — Python services (agents, executor, bot, sync)
+- **Supabase Cloud (us-east-1)** — Postgres + pgvector for data + Mem0 memories
+- **Vercel** — planned Next.js dashboard (Phase 7, not built)
+- **GitHub Actions** — CI/CD: push to `main` → SSH deploy to Hetzner (`deploy/habib-executor.service`, `deploy/habib-tgbot.service`, `deploy/crontab`)
+## Python Version Compatibility Notes
+- Uses `X | Y` union type syntax (Python 3.10+)
+- Uses `list[dict]` etc. generic syntax (Python 3.9+)
+- Async used extensively in sync layer; agent layer is synchronous
+<!-- GSD:stack-end -->
+
+<!-- GSD:conventions-start source:CONVENTIONS.md -->
+## Conventions
+
+## Language Style
+- Python 3.12, no type: ignore comments, modern union syntax (`X | Y`)
+- `from __future__ import annotations` used in async modules (sync layer)
+- f-strings throughout; no `.format()` or `%` formatting
+- `pydantic>=2.0.0` in deps but not currently used in implemented code — future use
+## Module-Level Patterns
+### Singletons (lazy, module-level)
+### Config as Module Constants
+### Agent Pattern (Template Method)
+## Logging
+### Sync Layer — structlog
+### Agent/Executor Layer — stdlib logging + print
+## Error Handling
+### Agents: catch-all in BaseAgent.run()
+### Mem0: graceful None fallback
+### Sync Layer: tenacity retry on HTTP
+### DB writes: wrapped in try/except with print
+## Claude Prompt Conventions
+### JSON-only output instruction
+### Defensive parsing (strip markdown fences)
+### L1 Rules injection
+## Telegram Message Formatting
+- HTML parse mode everywhere (`parse_mode="HTML"`)
+- `<b>Bold</b>` for labels, no markdown
+- Emoji-coded severity: 🔴 critical, 🟡 warning, 🔵 info, 🟢 healthy
+- Inline keyboards use `callback_data="action:id"` pattern (e.g., `"approve:uuid"`)
+## Supabase Query Patterns
+## Naming Conventions Summary
+| Context | Convention | Example |
+|---------|------------|---------|
+| Module files | snake_case | `inventory_agent.py` |
+| Classes | PascalCase | `InventoryAgent`, `SPAPIClient` |
+| Functions | snake_case | `fetch_data()`, `write_observations()` |
+| Constants | UPPER_SNAKE | `L1_RULES`, `MODEL_DAILY` |
+| DB table names | snake_case | `approval_requests`, `agent_runs` |
+| Agent names in DB | snake_case string | `"inventory_agent"` |
+| Memory types | lowercase | `"observation"`, `"pattern"`, `"playbook"` |
+| Action types | snake_case | `"fba_replenishment"`, `"price_change"` |
+<!-- GSD:conventions-end -->
+
+<!-- GSD:architecture-start source:ARCHITECTURE.md -->
+## Architecture
+
+## Pattern
+## Layers
+```
+```
+## Data Flow (Daily Cycle)
+```
+```
+## Abstractions
+### BaseAgent (`agents/base.py`)
+- `fetch_data() → dict` — Supabase queries
+- `analyze(data, memories) → dict` — Claude call, returns structured JSON
+- `process_response(response) → str` — write to Supabase, return summary string
+### Sync Layer (`sync/spapi/`)
+### Executor (`executor/executor.py`)
+## Entry Points
+| Module | How to invoke |
+|--------|---------------|
+| `agents/inventory_agent.py` | `python3 -m agents.inventory_agent` |
+| `executor/executor.py` | `python3 -m executor.executor` (daemon) |
+| `tgbot/bot.py` | `python3 -m tgbot.bot` (daemon, systemd) |
+| `tgbot/daily_brief.py` | `python3 -m tgbot.daily_brief` (cron) |
+| `sync/scheduler.py` | `python3 -m sync.scheduler` (daemon) |
+| `sync/jobs/*.py` | `python3 -m sync.jobs.inventory_sync` (individual cron jobs) |
+| `scripts/setup_mem0.py` | `python3 scripts/setup_mem0.py` (one-time) |
+## State Machine: Approval Requests
+```
+```
+## Key Design Decisions
+- **Agents don't call SP-API.** Only the Executor has SP-API write credentials.
+- **No agent-to-agent communication.** Each agent is independent; they share state via Supabase only.
+- **Mem0 is optional.** `get_memory()` returns `None` if connection fails; agents degrade gracefully.
+- **Sync layer is async, agents are sync.** Sync layer uses `asyncio` + `httpx` for throughput; agents are simpler synchronous scripts.
+- **No Claude tool_use schema.** Claude returns structured JSON via system prompt instruction + manual `json.loads()` parsing.
+<!-- GSD:architecture-end -->
+
+<!-- GSD:skills-start source:skills/ -->
+## Project Skills
+
+No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, or `.github/skills/` with a `SKILL.md` index file.
+<!-- GSD:skills-end -->
+
+<!-- GSD:workflow-start source:GSD defaults -->
+## GSD Workflow Enforcement
+
+Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+
+Use these entry points:
+- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
+- `/gsd-debug` for investigation and bug fixing
+- `/gsd-execute-phase` for planned phase work
+
+Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+<!-- GSD:workflow-end -->
+
+<!-- GSD:profile-start -->
+## Developer Profile
+
+> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
+> This section is managed by `generate-claude-profile` -- do not edit manually.
+<!-- GSD:profile-end -->
