@@ -11,6 +11,8 @@ from collections import defaultdict
 from anthropic import Anthropic
 from agents.base import BaseAgent
 from core.config import L1_RULES, MODEL_DAILY
+from core.models import PredictionRow
+from pydantic import ValidationError
 
 
 class InventoryAgent(BaseAgent):
@@ -214,6 +216,18 @@ For restock recommendations:
 - Consider seasonal factors from accumulated knowledge
 - For products with 0 velocity but low stock, flag as WATCH (slow mover, low stock)
 
+PREDICTION RULES (write to predictions[] array — see schema below):
+- Emit a predictions[] entry ONLY for at-risk SKUs: days_of_supply <= (lead_time_days + 14)
+- predicted_value = the days_of_supply float from the inventory table (e.g. 11.2)
+- resolution_date = today's date + ceil(days_of_supply) days, formatted YYYY-MM-DD
+- DO NOT emit predictions for healthy SKUs (days_of_supply > lead_time_days + 14)
+- DO NOT emit predictions for SKUs with days_of_supply = 999 (zero velocity, no risk)
+- confidence reflects certainty that stockout will occur by resolution_date:
+  0.9+ if days_of_supply < lead_time_days (stockout nearly certain without immediate action)
+  0.7-0.8 if days_of_supply is between lead_time_days and lead_time_days + 7
+  0.5-0.6 if days_of_supply is between lead_time_days + 7 and lead_time_days + 14
+- reasoning = one sentence stating why this SKU is at-risk
+
 Inbound shipments and supplier shipments context:
 - Inbound shipments: {json.dumps(data["inbound_shipments"]) if data["inbound_shipments"] else "None in transit"}
 - Supplier shipments: {json.dumps(data["supplier_shipments"]) if data["supplier_shipments"] else "None pending"}
@@ -263,6 +277,16 @@ Just the raw JSON object matching this exact schema:
       "product_ids": ["..."],
       "confidence": <0.0-1.0>
     }}
+  ],
+  "predictions": [
+    {{
+      "product_id": "...",
+      "sku": "...",
+      "predicted_value": <days_of_supply as float, e.g. 11.2>,
+      "resolution_date": "YYYY-MM-DD",
+      "confidence": <0.0-1.0>,
+      "reasoning": "One sentence explaining why this SKU is at-risk"
+    }}
   ]
 }}"""
 
@@ -279,6 +303,18 @@ Analyze this and produce your JSON response."""
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
+
+        # Guard against empty content list (rare API edge case)
+        if not response.content:
+            raise ValueError(f"[{self.run_id}] Claude returned empty content list")
+
+        # Guard against output truncation — silent JSON breakage signal
+        if response.stop_reason != "end_turn":
+            print(
+                f"[{self.run_id}] WARNING: stop_reason={response.stop_reason}. "
+                f"Output tokens: {response.usage.output_tokens}. "
+                "JSON may be truncated — raise max_tokens before next run."
+            )
 
         raw_text = response.content[0].text.strip()
 
@@ -359,10 +395,72 @@ Analyze this and produce your JSON response."""
             except Exception as e:
                 print(f"[{self.run_id}] Failed to write approval request: {e}")
 
+        # Predictions: write to prediction_log (D-01, D-02, D-03, D-04)
+        predictions_attempted = len(response.get("predictions", []))
+        predictions_written = 0
+        snapshot_date = response.get(
+            "analysis_date",
+            datetime.now(timezone.utc).date().isoformat(),
+        )
+
+        for pred in response.get("predictions", []):
+            try:
+                validated = PredictionRow(
+                    product_id=pred["product_id"],
+                    agent=self.agent_name,
+                    predicted_value=pred["predicted_value"],
+                    confidence=pred.get("confidence", 0.6),
+                    snapshot_date=snapshot_date,
+                    resolution_date=pred["resolution_date"],
+                    run_id=self.run_id,
+                    reasoning=pred.get("reasoning", ""),
+                )
+                self.supabase.table("prediction_log").insert(
+                    validated.model_dump()
+                ).execute()
+                predictions_written += 1
+            except ValidationError as e:
+                print(
+                    f"[{self.run_id}] Prediction validation failed for "
+                    f"{pred.get('sku', '?')}: {e}"
+                )
+            except Exception as e:
+                print(
+                    f"[{self.run_id}] Failed to write prediction for "
+                    f"{pred.get('sku', '?')}: {e}"
+                )
+
+        # Online guardrail: zero-prediction anomaly (per AI-SPEC §6)
+        if predictions_attempted > 0 and predictions_written == 0:
+            try:
+                self.supabase.table("notifications").insert({
+                    "agent": self.agent_name,
+                    "severity": "critical",
+                    "title": "Prediction write failure - all rows rejected",
+                    "body": (
+                        f"Inventory agent attempted to write {predictions_attempted} "
+                        f"prediction rows; all were rejected by Pydantic validation. "
+                        f"Check logs for run_id={self.run_id} for validation error details. "
+                        f"This is a silent gap in prediction_log."
+                    ),
+                    "status": "unread",
+                    "metadata": {
+                        "run_id": self.run_id,
+                        "predictions_attempted": predictions_attempted,
+                        "predictions_written": predictions_written,
+                    },
+                }).execute()
+            except Exception as e:
+                print(
+                    f"[{self.run_id}] Failed to write zero-prediction "
+                    f"guardrail notification: {e}"
+                )
+
         token_usage = response.get("_token_usage", {})
         summary = (
             f"{response.get('summary', '')} | "
-            f"{alerts_written} alerts, {approvals_written} restock requests created. "
+            f"{alerts_written} alerts, {approvals_written} restock requests, "
+            f"{predictions_written}/{predictions_attempted} predictions written. "
             f"Tokens: {token_usage.get('input', 0)}in / {token_usage.get('output', 0)}out"
         )
         return summary
