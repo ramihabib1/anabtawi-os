@@ -43,7 +43,7 @@ decisions:
 metrics:
   duration: "116 seconds"
   completed_date: "2026-04-19"
-  tasks_completed: 2
+  tasks_completed: 3
   tasks_total: 3
   files_created: 5
   files_modified: 0
@@ -86,39 +86,9 @@ Three validators:
 
 **BaselineMetrics** — validates `baseline_metrics` JSONB before `recommendation_outcomes` insert. `@model_validator(mode="after")` checks key presence (not values), raises with sorted list of missing keys for operator-readable error messages.
 
-### Task 3: PENDING — human checkpoint
+### Task 3: Apply migrations to Supabase (commit — checkpoint resolved)
 
-Migration files are ready. Rami must apply them manually via the Supabase SQL editor (D-07: manual deployment model — no migration runner).
-
-## Task 3 Instructions
-
-Apply each file in order via the Supabase SQL editor: https://app.supabase.com/project/thenkkiaeuuxvuoxizjd/sql
-
-Order matters (foreign key dependencies):
-1. `scripts/migrations/001_consolidation_log.sql` — no FK dependencies
-2. `scripts/migrations/002_prediction_log.sql` — depends on `products` (already exists)
-3. `scripts/migrations/003_recommendation_outcomes.sql` — depends on `approval_requests` and `products`
-4. `scripts/migrations/004_wiki_pages.sql` — no FK dependencies
-
-After applying all four, verify with:
-```sql
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-  AND table_name IN ('consolidation_log', 'prediction_log', 'recommendation_outcomes', 'wiki_pages')
-ORDER BY table_name;
-```
-Expected: 4 rows.
-
-Verify seed rows:
-```sql
-SELECT job_type, last_run_success, total_runs_count FROM consolidation_log ORDER BY job_type;
-```
-Expected: 2 rows (monthly_review, weekly_patterns), both with `last_run_success = false` and `total_runs_count = 0`.
-
-Re-run each file once to confirm idempotency (no errors, consolidation_log stays at 2 rows).
-
-Reply "applied" once all verifications pass.
+All four migrations applied manually via Supabase SQL editor. All four tables confirmed in `information_schema.tables`. Consolidation_log seed rows verified (monthly_review, weekly_patterns, both with last_run_success=false, total_runs_count=0). Idempotency confirmed — re-running each file produced no errors.
 
 ## Deviations from Plan
 
