@@ -32,7 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. After any inventory agent run, new rows appear in `prediction_log` with `predicted_value`, `resolution_date`, and `confidence` filled
   3. After any executor write, a row exists in `recommendation_outcomes` with `baseline_metrics` and `measurement_window_days` set at execution time
   4. All four migrations are idempotent (safe to re-run without error or data loss)
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 01-01-PLAN.md — Schema migrations (4 idempotent SQL files) + core/models.py Pydantic validators (PredictionRow, BaselineMetrics, MEASUREMENT_WINDOWS) + manual Supabase apply checkpoint
+- [ ] 01-02-PLAN.md — Inventory agent extension: emit predictions[] for at-risk SKUs, write to prediction_log with PredictionRow validation + zero-prediction guardrail
+- [ ] 01-03-PLAN.md — Executor extension: _build_baseline_metrics helper for all four action_types, write to recommendation_outcomes after successful SP-API dispatch with BaselineMetrics validation
 
 ### Phase 2: Weekly Consolidation & Validation
 **Goal**: Observations compound into patterns every Saturday, and prediction accuracy is measured daily so the system is self-evaluating from day one
@@ -123,7 +126,7 @@ Phases execute in numeric order. Phase 4 may execute in parallel with Phase 2/3 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Agent Extensions | 0/TBD | Not started | - |
+| 1. Schema & Agent Extensions | 0/3 | Not started | - |
 | 2. Weekly Consolidation & Validation | 0/TBD | Not started | - |
 | 3. Monthly Review & Wiki Compiler | 0/TBD | Not started | - |
 | 4. Dashboard Core | 0/TBD | Not started | - |
