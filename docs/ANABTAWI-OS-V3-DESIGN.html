@@ -123,32 +123,36 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
 
 <div class="wrap">
 <header class="masthead">
-  <div class="eyebrow">Design v2.1 · September 3, 2026 · researched revision</div>
+  <div class="eyebrow">Design v3 · September 3, 2026 · vendor-agnostic · subscription-first · open source</div>
   <h1>Anabtawi Operating System</h1>
-  <p class="lede">A company of AI departments that runs the e-commerce business every day, with Rami as CEO and final judge. Nothing to host. This revision adds the per-department tool research, the DataDoe deep dive, how departments communicate, the Amazon-compliant write path, and a verdict on Grok.</p>
-  <div class="meta"><span>Owner: Rami Anabtawi</span><span>Runtime: Claude Managed Agents + Claude Code</span><span>Servers to maintain: 0</span><span>Research: 7 sourced surveys, ~43,000 words</span></div>
+  <p class="lede">A company of AI departments that runs the e-commerce business every day, with Rami as CEO and final judge. Departments are portable text. The brains are the CLIs you already subscribe to. The orchestrator is open source and replaceable. Nothing is owned by a vendor.</p>
+  <div class="meta"><span>Owner: Rami Anabtawi</span><span>Runtime: Paperclip on a Mac mini · Claude Code + Codex on subscriptions</span><span>Custom code: under 500 lines</span><span>Research: 12 surveys, ~75,000 words</span></div>
 </header>
 
 <div class="grid">
 <nav class="toc" aria-label="Sections">
   <span class="k">Contents</span>
   <ol>
-    <li><a href="#changed">What changed in v2.1</a></li>
+    <li><a href="#changed">What changed in v3</a></li>
     <li><a href="#why">Why v1 failed</a></li>
     <li><a href="#company">The company</a></li>
     <li><a href="#authority">Authority tiers</a></li>
     <li><a href="#comms">How departments communicate</a></li>
-    <li><a href="#runtime">Runtime and monitoring</a></li>
-    <li><a href="#writes">The write path and Amazon's Agent Policy</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#models">Model allocation and rules</a></li>
+    <li><a href="#orchestrator">Control plane decision</a></li>
+    <li><a href="#writes">Write path and Agent Policy</a></li>
+    <li><a href="#box">The box</a></li>
+    <li><a href="#knowledge">Knowledge and approvals</a></li>
+    <li><a href="#code">The only custom code</a></li>
     <li><a href="#datadoe">DataDoe, fully</a></li>
     <li><a href="#tools">Tools per department</a></li>
-    <li><a href="#grok">Grok verdict</a></li>
     <li><a href="#calendar">Operating calendar</a></li>
     <li><a href="#growth">Growth program</a></li>
     <li><a href="#build">30-day build</a></li>
     <li><a href="#cost">Cost</a></li>
     <li><a href="#open">Open items</a></li>
-    <li><a href="#decide">Decisions for Rami</a></li>
+    <li><a href="#decide">Decisions</a></li>
     <li><a href="#sources">Sources</a></li>
   </ol>
 </nav>
@@ -157,22 +161,24 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
 <article>
 
 <section id="changed">
-  <h2><span class="n">00</span>What changed in v2.1</h2>
-  <p>You asked for two things: real research on every tool instead of quick picks, and a design for how departments talk to each other. Seven research agents produced sourced surveys, one per domain, with every claim tagged as verified against a primary source, reported from a secondary source, or unknown. This revision is built on those. The five findings that changed the design:</p>
+  <h2><span class="n">00</span>What changed in v3</h2>
+  <p>You set the constraint plainly: no lock-in to one vendor's platform, no API-only billing as the foundation, use the subscriptions you already pay for on a machine you control, open-source where possible, and scalable. Five more research surveys, about 32,000 words, went into this revision. The architecture is now built on one principle:</p>
+  <div class="callout"><p><strong>No vendor owns the runtime.</strong> A department is a folder of text that any agent CLI can run. The model behind it is a config line. The orchestrator is open source and replaceable. Tools are MCP. Knowledge is markdown in git. If Anthropic, OpenAI, or xAI changes a rule tomorrow, you edit one line, not the company.</p></div>
+  <p>The findings that shaped it, each verified against a primary source unless noted:</p>
   <ul>
-    <li><strong>Amazon now regulates agents contractually.</strong> Section 19 of the Business Solutions Agreement, effective March 4, 2026, requires automated tools to identify themselves in every request, log every action for 12 months, keep human authorization for large actions, and use registered API apps only. Browser automation and scraping are banned. The tier system was already stricter than this; the write path now satisfies it by construction.</li>
-    <li><strong>DataDoe can write, not just read.</strong> Its MCP supports listing and price updates and full Amazon Ads campaign changes, each action type off by default, with dry run and an audit log. It stays the read layer and the interactive exploration tool. For unattended writes the design uses a private SP-API app you own instead, for reasons in section 07.</li>
-    <li><strong>Claude Code Routines run with no approval prompts.</strong> That rules them out for any department that can write to the account. Unattended departments run on Claude Managed Agents, which has per-session dollar budgets, credential vaults, persistent memory, a coordinator for meetings, and a session viewer. That is also the monitoring you wanted.</li>
-    <li><strong>Free first-party data replaces most paid tools.</strong> Brand Analytics search reports, the Product Pricing API's expected Buy Box price, listing issue and offer change notifications, and Amazon's own automated pricing rules cover what keyword, competitor, and repricing tools sell. The paid list shrinks to DataDoe, Keepa, one keyword tool during launches, and accounting.</li>
-    <li><strong>The US launch has a compliance calendar, not just a stock calendar.</strong> FDA food facility registration renews only in October to December 2026. FSVP, prior notice, and Grocery category requirements are real workstreams. Two of those items could not be fully verified and are listed as open.</li>
+    <li><strong>Subscriptions can only be spent through each vendor's own CLI.</strong> Anthropic's compliance page permits signing in to the unmodified Claude Code binary with your own subscription, including when a platform hosts it, and provides a one-year token for scripts. The Agent SDK and any third-party harness must use API keys. OpenCode, Goose, Crush, and the other open harnesses are all API-key only. So the design runs Claude Code and Codex as subprocesses of an open-source control plane.</li>
+    <li><strong>Grok Build is excluded from anything that touches credentials.</strong> Six outlets reported in July 2026 that it uploaded full repositories, including unredacted secret files, to xAI storage, and that the upload path remains in the open-sourced code behind a remote flag. It may run one credential-free research department in isolation, or nothing.</li>
+    <li><strong>Gemini CLI for individuals was shut down on June 18, 2026</strong> and Google enforced its ban on subscription use with account suspensions. It is off the table.</li>
+    <li><strong>Paperclip is the only open-source orchestrator built as a company</strong>: org chart, heartbeats, budgets, approvals, immutable audit log, multi-organisation isolation, and adapters that run Claude Code and Codex on your logins. It is six months old with a single maintainer. It is chosen with a written exit path, because the departments do not depend on it.</li>
+    <li><strong>Authentication is the real maintenance cost, not hosting.</strong> Neither Claude Code nor Codex has a clean headless login, so periodic re-authentication is unavoidable. A machine you can walk up to turns that into five minutes. The honest contract is one to three hours a month.</li>
+    <li><strong>OpenClaw is out.</strong> A localhost-exploitable remote code execution flaw, a quarter million exposed instances, and 800 malicious skills in its marketplace this year. Its markdown-memory convention is borrowed; the product is not.</li>
   </ul>
 </section>
 
 <section id="why">
-  <h2><span class="n">01</span>Why v1 failed, and the one rule for v2</h2>
-  <p>Version 1 was a software project. Python daemons on Hetzner, a custom sync layer, Mem0, a Telegram bot, a dashboard roadmap. It produced infrastructure, not decisions, and you never used it. The loop that actually ran the business was you, a Claude session, and live account data through DataDoe's MCP.</p>
-  <p>Version 2 takes that loop and gives it structure, a schedule, memory, and authority to act. It adds zero servers.</p>
-  <div class="callout"><p><strong>The rule:</strong> every component is either a hosted tool we buy, or a plain text file in a git repo. If something needs deploying, restarting, or debugging at 2am, it does not belong.</p></div>
+  <h2><span class="n">01</span>Why v1 failed, and the rule for v3</h2>
+  <p>Version 1 was a software project you had to feed: custom sync, custom memory, custom bot, a VPS to babysit. It produced infrastructure, not decisions, and you stopped using it. The loop that worked was you, a Claude session, and live account data through DataDoe's MCP.</p>
+  <div class="callout"><p><strong>The rule:</strong> every component is a hosted tool we buy, an open-source tool that runs from one Docker Compose file, or a plain text file in a git repo. Custom code is limited to three small scripts, listed in section 11, and nothing else.</p></div>
   <p>Three ideas survive from v1: humans approve money, business rules live in one constitution file, and knowledge compounds from observations into playbooks.</p>
 </section>
 
@@ -216,13 +222,12 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
   <div class="chan wide">
     <div><div class="h">Shared state<small>always on · the blackboard</small></div><p>Every department writes to a fixed file others must read before proposing anything. Refreshed each run.</p><ul><li><code>state/inventory.md</code> cover per SKU, inbound ETAs, capacity</li><li><code>state/cash.md</code> position, 8-week forecast, PO ceiling left</li><li><code>state/ads.md</code> launches in ramp, pacing, ACOS by SKU</li><li><code>state/prices.md</code> price, floor, competitor positions, tests</li><li><code>state/catalog.md</code> changes in flight, suppressed listings</li><li><code>state/health.md</code> account status, open violations</li><li><code>state/calendar.md</code> launches, deals, blackout dates</li></ul></div>
     <div><div class="h">Typed requests<small>asynchronous · the inbox</small></div><p>One file per request in <code>requests/&lt;dept&gt;/inbox/</code> with a fixed schema and an enumerated type. Each department answers its inbox before its own work. Unanswered past the needed-by date escalates to the Chief of Staff.</p><ul><li><code>need-cash-check</code> Supply Chain → Finance</li><li><code>need-forecast</code> Advertising → Supply Chain</li><li><code>need-margin-floor</code> Pricing → Finance</li><li><code>blackout</code> Advertising → Pricing: hold price on SKU until date</li><li><code>stockout-risk</code> Supply Chain → Advertising: throttle spend</li><li><code>competitor-oos</code> Pricing → Advertising: raise bids</li><li><code>quality-issue</code> Customer → Supply Chain, Catalog</li></ul></div>
-    <div><div class="h">Meetings<small>synchronous · coordinated</small></div><p>One Managed Agents session where the Chief of Staff is the coordinator and departments are roster threads. The coordinator poses the decision, collects positions, resolves against the constitution, writes minutes to <code>meetings/</code>, and queues anything Tier 2 or above for you.</p><ul><li>Monday business review, all departments</li><li>Monthly sales and operations planning: demand → supply → cash → launch calendar. POs are sized here.</li><li>Launch review for every new SKU or market</li><li>Event meetings: hero SKU stockout imminent, competitor out of stock, account health drop</li></ul></div>
+    <div><div class="h">Meetings<small>synchronous · coordinated</small></div><p>One headless Chief of Staff run that spawns a subagent per department. The coordinator poses the decision, collects positions, resolves against the constitution, writes minutes to <code>meetings/</code>, and queues anything Tier 2 or above for you.</p><ul><li>Monday business review, all departments</li><li>Monthly sales and operations planning: demand → supply → cash → launch calendar. POs are sized here.</li><li>Launch review for every new SKU or market</li><li>Event meetings: hero SKU stockout imminent, competitor out of stock, account health drop</li></ul></div>
   </div>
 
-  <h3>Why this maps onto Managed Agents exactly</h3>
-  <p>Managed Agents multi-agent sessions give a coordinator a roster of up to 20 agents, each in its own persistent thread with its own model, prompt, tools, and MCP servers. Threads share one filesystem, which is the repo. The coordinator sends tasks and follow-ups and receives reports as typed thread messages. There is no peer-to-peer channel and delegation is one level deep. That is not a limitation for this company; it is the audit trail. Every cross-department exchange either goes through files in git or through the Chief of Staff, and the session viewer shows every thread. An advisor entry lets the Chief of Staff consult a stronger model on a hard call mid-meeting. A session budget caps what a meeting can spend.</p>
-
-  <h3>What you see</h3>
+  <h3>Where each channel runs</h3>
+  <p>Shared state and the inbox are files in the company repo, which every department's CLI starts in and commits to. Typed requests are also mirrored as tickets in the control plane so they carry deadlines, assignment, and escalation. Meetings are a single headless Claude Code run by the Chief of Staff that spawns one subagent per department; each subagent reads its department's state, inbox, and memory, argues its position, and reports back; the Chief of Staff resolves against the constitution, writes minutes, and queues anything Tier 2 or above. Claude Code supports subagents in headless mode on a subscription, so a meeting costs one department run. Your Monday session opens the minutes and the pack, and you decide.</p>
+<h3>What you see</h3>
   <ul>
     <li>The morning brief lists unresolved cross-department conflicts as decisions, with each department's position in two lines.</li>
     <li>Every meeting produces one page of minutes. You can join any meeting live from your session or read the minutes later.</li>
@@ -230,20 +235,91 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
   </ul>
 </section>
 
-<section id="runtime">
-  <h2><span class="n">05</span>Runtime and monitoring</h2>
-  <p>Two surfaces, one repo, one set of connectors.</p>
+<section id="arch">
+  <h2><span class="n">05</span>Architecture: six layers, none owned by a vendor</h2>
   <div class="layers wide">
-    <div class="layer"><div class="l">Unattended departments<small>Claude Managed Agents</small></div><div class="r">Each department is a stored, versioned agent. Scheduled deployments fire sessions on a cron in Asia/Jerusalem time. The company repo is attached as a GitHub resource; skills load from <code>.claude/skills</code>. Credentials live in a vault and are substituted at egress, never visible in the sandbox. Each deployment carries a hard dollar budget. Memory stores hold per-department memory across sessions. Meetings are multi-agent sessions with the Chief of Staff as coordinator. Pricing is standard tokens plus $0.08 per active session hour; idle is free. Unattended sessions execute Tier 1 only; Tier 2 proposals are written to the queue.</div></div>
-    <div class="layer"><div class="l">Your cockpit<small>Claude Code, web or desktop</small></div><div class="r">Your interactive sessions open the same repo with the same MCP connectors. You read the brief, answer the decision queue in one message, and the session executes the approved actions through the same tools and writes the same ledger entries. Deep work happens here: "show me why Advertising wants to cut the tahini campaign" opens the ledger entry and the data behind it. Runs on Claude Max.</div></div>
-    <div class="layer"><div class="l">Monitoring<small>built in</small></div><div class="r">The Managed Agents console shows every session, thread, tool call, and cost. Deployment runs record every firing, including failures, so a department that did not run is visible. Webhooks can notify on session state changes. The brief itself is the daily health check: the Chief of Staff reports which departments ran and which did not. This is the monitoring you asked Grok for; it exists here already.</div></div>
-    <div class="layer"><div class="l">Where Routines fit<small>Claude Code, optional</small></div><div class="r">Routines are scheduled Claude Code cloud sessions on your subscription, but they run with no permission prompts and every connector attached by default. Use them only for read-only jobs, such as a Sunday ops digest, never for a department that can write.</div></div>
+    <div class="layer"><div class="l">1. Departments<small>portable text</small></div><div class="r">A department is a folder: <code>AGENTS.md</code> for its charter and rules, read natively by Claude Code, Codex, Cursor, and most 2026 agents (Claude Code imports it from a one-line <code>CLAUDE.md</code>); <code>skills/</code> in the open Agent Skills format, adopted by some 40 tools, for procedures and validated playbooks; <code>.mcp.json</code> for the exact tool servers it may use; <code>memory/</code> for what it has learned. The same folder runs unchanged on any of the CLIs below.</div></div>
+    <div class="layer"><div class="l">2. Brains<small>first-party CLIs on your subscriptions</small></div><div class="r">Claude Code with a one-year setup token on Claude Max. Codex CLI signed in to ChatGPT with device auth. Both run headless with JSON output and local MCP servers. A self-hosted LiteLLM router provides the third path for any department you want on an API key or a local open-weight model, with per-department budgets and fallbacks in one YAML file. Allocation and the rules are in section 06.</div></div>
+    <div class="layer"><div class="l">3. Control plane<small>Paperclip, open source</small></div><div class="r">Paperclip holds the org chart, fires each department's heartbeat on schedule, enforces a hard budget per agent, records every tool call in an immutable audit log, and routes requests as tickets. Its Claude Code and Codex adapters spawn the real CLI binaries with your logins. It runs from one Docker Compose file on the box, bound to the private network only. Section 07 compares the alternatives and states the exit path.</div></div>
+    <div class="layer"><div class="l">4. Hands<small>the only writes to Amazon</small></div><div class="r">Amazon's official Ads MCP for advertising, called directly by the Advertising department within Tier 1 guardrails. For prices, listings, and FBA shipments, a private SP-API app you own, executed by a small hands runner that only acts on approval files flipped to approved by the Telegram bot. Approvals are durable files in the repo, so they survive any restart or a change of orchestrator. Section 08.</div></div>
+    <div class="layer"><div class="l">5. The box<small>a machine you can walk up to</small></div><div class="r">A Mac mini at home or the office, sleep disabled, auto-login, four to six watts idle. launchd runs the control plane and the hands runner as user agents so the CLIs find their credentials. Docker for the control plane and MCP servers. Tailscale so nothing is ever on the public internet. 1Password service accounts or self-hosted Infisical inject secrets at run time, no plaintext env file. healthchecks.io as an off-box dead-man switch. Git to GitHub plus restic to Backblaze for everything else. Section 09.</div></div>
+    <div class="layer"><div class="l">6. Knowledge and interface<small>markdown, a static wiki, Telegram</small></div><div class="r">The company repo is the memory: constitution, charters, state files, dossiers, playbooks, ledgers as JSONL and CSV queried with DuckDB, briefs, minutes. MkDocs builds a private wiki on every push, hosted on Cloudflare Pages behind Cloudflare Access so your father and brother read it with an email link. The morning brief and every approval reach your phone through one Telegram bot with inline buttons. Section 10.</div></div>
   </div>
-  <div class="callout"><p><strong>Kill switch.</strong> Revoke the vault credentials and pause deployments. Both are one action in the console. Amazon's Agent Policy requires that agents stop on request; this is how.</p></div>
+  <h3>What is swappable, and what it costs to swap</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Layer</th><th>Today</th><th>Swap to</th><th>Cost of swap</th></tr></thead>
+    <tbody>
+      <tr><td>Brain for a department</td><td>Claude Code or Codex</td><td>Each other, a LiteLLM route to any API model, or a local model</td><td>One line in the department's Paperclip adapter config</td></tr>
+      <tr><td>Control plane</td><td>Paperclip</td><td>n8n, or a 150-line launchd runner</td><td>Re-create schedules and budgets; departments, approvals, and knowledge untouched</td></tr>
+      <tr><td>Data read layer</td><td>DataDoe</td><td>Nova, Seller Labs, or your own SP-API reads</td><td>Edit <code>.mcp.json</code> and the two skills that wrap exports</td></tr>
+      <tr><td>Approval channel</td><td>Telegram</td><td>Signal, Slack, a web page</td><td>Rewrite the 100-line bot; the approval files do not change</td></tr>
+      <tr><td>Box</td><td>Mac mini</td><td>Linux mini PC, a VPS with Coolify</td><td>Rebuild from git plus restic in under an hour, then re-authenticate the CLIs</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="models">
+  <h2><span class="n">06</span>Model allocation and the subscription rules</h2>
+  <h3>What the vendors actually permit, as of September 3, 2026</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Provider</th><th>Rule</th><th>Status</th><th>Consequence for the OS</th></tr></thead>
+    <tbody>
+      <tr><td>Anthropic, Claude Max</td><td>OAuth is for "ordinary use of Claude Code and other native Anthropic applications." An end user may sign in to "the unmodified Claude Code binary with their own Claude subscription, including where a platform hosts Claude Code." The Agent SDK and third-party developers "should use API key authentication," and no one may route requests through Pro or Max credentials on behalf of users. <code>claude setup-token</code> mints a one-year token for "CI pipelines, scripts, or other environments where interactive browser login isn't available"; local MCP servers still work. "Advertised usage limits for Pro and Max plans assume ordinary, individual usage." Enforcement "without prior notice."</td><td>Verified, live compliance and authentication pages</td><td>Run the real <code>claude</code> binary as a subprocess. Never a harness that reuses the token. Eight daily unattended runs on one account is a volume outside "ordinary individual usage" in spirit even if not in words; that is a risk to manage, not a rule to ignore.</td></tr>
+      <tr><td>OpenAI, ChatGPT plan</td><td><code>codex exec</code> is the documented headless mode with JSON events; <code>codex login --device-auth</code> for headless machines. Sign-in with a ChatGPT plan shares one usage pool across CLI, IDE, and web, with a five-hour window reinstated for Plus on August 25, 2026 and a weekly cap. Terms forbid credential sharing and powering third-party services; running your own agents for your own business is not named either way.</td><td>Headless mode verified via docs; policy reported</td><td>Permitted in practice, not explicitly blessed. Keep a ChatGPT Pro tier if two or more departments run here.</td></tr>
+      <tr><td>xAI, SuperGrok</td><td>Grok Build has native headless output and device auth. In July 2026 researchers found it uploading full repositories and secret files to xAI storage; xAI added a server-side flag and open-sourced the client, but the upload path remains in the code.</td><td>Reported by six independent outlets</td><td>Excluded from any department with credentials or repo access until a code-level fix and a post-mortem exist. Optional for one credential-free research department in its own directory.</td></tr>
+      <tr><td>Google, Gemini CLI</td><td>Shut down for individual accounts on June 18, 2026, no grace period; subscription use through third parties was enforced with suspensions in March. Replacement Antigravity CLI is closed source.</td><td>Verified shutdown via official docs; enforcement reported</td><td>Not used.</td></tr>
+      <tr><td>Open-source harnesses</td><td>OpenCode removed its Claude subscription login under legal request in March 2026. Goose, Crush, Aider, Cline, Amp, Qwen Code, Kimi CLI are all API-key or own-credit products.</td><td>Reported, consistent</td><td>None can spend your subscriptions. They remain available through LiteLLM on API keys if you ever want them.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>The allocation</h3>
+  <p>Departments are spread across two subscription pools so that no single weekly cap stops the company, the most sensitive departments run on the most mature approval tooling, and every department has an API fallback through the router.</p>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Department</th><th>Brain</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Chief of Staff</td><td>Claude Code, Max</td><td>Runs meetings with subagents and compiles the brief; needs the strongest reasoning and the subagent feature.</td></tr>
+      <tr><td>Finance, Supply Chain, Pricing</td><td>Claude Code, Max</td><td>They produce the money proposals. Claude Code's MCP and permission tooling is the most mature.</td></tr>
+      <tr><td>Advertising</td><td>Codex, ChatGPT</td><td>Acts through the official Ads MCP within guardrails; spreads the daily Tier 1 workload off the Claude pool.</td></tr>
+      <tr><td>Catalog, Customer, Account Health</td><td>Codex, ChatGPT</td><td>Analysis-heavy, long reads, few writes. Suits the looser Pro window.</td></tr>
+      <tr><td>Market Intel</td><td>Codex, or Grok Build in isolation if you insist</td><td>Public web research only. The one place Grok's subscription could be used without exposing credentials.</td></tr>
+      <tr><td>Overflow and fallback</td><td>LiteLLM to Claude or OpenAI API, budget-capped</td><td>When a weekly cap is hit mid-week, the router keeps the calendar running at metered cost instead of silently skipping a department.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Capacity, honestly</h3>
+  <ul>
+    <li>A department run with 20 to 40 tool calls plausibly consumes 150k to 500k tokens. Eight runs a day is 1 to 4 million tokens, 8 to 28 million a week. Neither vendor publishes token ceilings for subscriptions.</li>
+    <li>Claude Max 20x is the right fit for four departments plus your own daily use. It is very likely not enough for eight, which is why half the company runs on ChatGPT.</li>
+    <li>If the whole workload were API-billed on Sonnet 5, it would cost roughly $90 to $300 a month. That number is the ceiling of the fallback, not the plan.</li>
+    <li>Week one measures real consumption from the CLIs' own status output and Paperclip's cost tracking, and the allocation is adjusted on real numbers.</li>
+  </ul>
+  <div class="warnbox"><p><strong>The gray area, stated once.</strong> Anthropic's limits "assume ordinary, individual usage." Four unattended department runs a day on one Max account is a heavier pattern than most subscribers. The design keeps it inside the letter of the policy by running only the unmodified binary with your own login, keeps the load moderate by splitting providers, and keeps the API fallback funded so an enforcement action would cost money, not the company. If you want certainty, one email to Anthropic sales describing the use is the cheapest insurance available.</p></div>
+</section>
+
+<section id="orchestrator">
+  <h2><span class="n">07</span>The control plane decision</h2>
+  <p>Five candidates were researched in depth. The table is the decision; the reasoning follows.</p>
+  <div class="tbl wide"><table>
+    <thead><tr><th></th><th>Paperclip</th><th>n8n</th><th>Thin launchd runner</th><th>OpenClaw</th><th>Hermes Agent</th></tr></thead>
+    <tbody>
+      <tr><td>Company model: org chart, budgets per agent, approvals, audit log</td><td><span class="buy">Native</span></td><td>Build yourself as workflows</td><td>Build yourself</td><td>No</td><td>No</td></tr>
+      <tr><td>Runs departments on your subscriptions via the vendors' own CLIs</td><td><span class="buy">Claude Code and Codex adapters, documented</span></td><td>Via a shell node; workable</td><td>Yes, that is the whole runner</td><td>Policy-volatile; blocked and restored three times</td><td>In progress, not shipped</td></tr>
+      <tr><td>MCP</td><td>Inherited through each CLI plus a governed tool gateway</td><td>Native client node</td><td>Through each CLI</td><td>Partial</td><td>Native</td></tr>
+      <tr><td>Telegram approvals</td><td>Adapter or bridge needed</td><td><span class="buy">Native send-and-wait with buttons</span></td><td>Build the bot</td><td>Native</td><td>Native</td></tr>
+      <tr><td>Multi-brand isolation</td><td><span class="buy">Native multi-organisation</span></td><td>Separate instances</td><td>Separate configs</td><td>No</td><td>No</td></tr>
+      <tr><td>Security record</td><td>None yet, young</td><td>Mature, years of self-hosting</td><td>Trivial surface</td><td><span class="skip">Severe in 2026</span></td><td>None yet, young</td></tr>
+      <tr><td>Maturity and continuity</td><td>6 months, ~80k stars, single pseudonymous maintainer, 150+ open issues</td><td>Years, large community, fair-code licence</td><td>Yours</td><td>8 months, foundation-backed</td><td>6 months, Nous Research</td></tr>
+      <tr><td>Footprint</td><td>Node 24 plus Postgres, one Compose file</td><td>One container</td><td>None</td><td>Node</td><td>Python plus Node</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Recommendation: Paperclip, with an exit path written before day one</h3>
+  <p>Paperclip is the only candidate whose model of the world is the model in this document: agents as employees with roles, heartbeats, budgets, and approvals, and a company that can hold several organisations. Its adapters do the one thing you asked for that no open harness does, which is run Claude Code and Codex on your logins. The MCP tool gateway gives governed tool access per agent, which is the credential isolation the shared-box threat model needs. The risks are its age and its bus factor. They are mitigated by the design rather than argued away: nothing that matters lives inside Paperclip. Departments are folders in git, knowledge is markdown, approvals are files, the hands runner is separate, and Paperclip's own Postgres holds only schedules, budgets, and its audit copy of the ledger.</p>
+  <p><strong>Exit criteria.</strong> If Paperclip goes two months without a release, ships a security issue that is not patched within a week, or the adapters break on a CLI update and stay broken for two weeks, the company moves to n8n, whose Telegram approval node and MCP node already cover the mechanics, or to a launchd runner of about 150 lines that fires each department's CLI in sequence. Either move is a weekend, and the departments do not know it happened.</p>
+  <p><strong>Why not n8n first.</strong> It is the more mature product and it would work. It has no idea what a department is, no per-agent budget, no org chart, and no multi-organisation isolation, so the company model would be rebuilt by hand in workflow JSON. That is the software project you do not want. It is the right fallback precisely because it is boring.</p>
 </section>
 
 <section id="writes">
-  <h2><span class="n">06</span>The write path and Amazon's Agent Policy</h2>
+  <h2><span class="n">08</span>The write path and Amazon's Agent Policy</h2>
   <p>Amazon added Section 19, the Agent Policy, to the Business Solutions Agreement effective March 4, 2026, with a grace period that ended in early June. As reported across seller law firms and analysts, it requires:</p>
   <ul>
     <li>Agents identify as automated in every request, with <code>Agent/[name]</code> in the User-Agent header, and never mimic humans or bypass CAPTCHAs.</li>
@@ -259,7 +335,7 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
     <thead><tr><th>Writes</th><th>Path</th><th>Why</th></tr></thead>
     <tbody>
       <tr><td>Campaigns, bids, budgets, keywords, negatives</td><td><strong>Amazon Ads MCP</strong>, official, Amazon-hosted</td><td>First-party, 50+ tools, open beta since February 2026. Uses your own Ads API credentials, so the agent identity is yours. Read section 08 for tool coverage and the DSP and AMC gates.</td></tr>
-      <tr><td>Prices, listing content, A+ content, FBA inbound shipments, review requests</td><td><strong>Your own private SP-API app</strong>, executed by a "hands" skill inside a Managed Agents session with the refresh token in a vault</td><td>The roles needed (Pricing, Product Listing, Inventory and Order Tracking, Amazon Fulfillment, Brand Analytics) are non-restricted, so a private self-authorized app registers in days with no Data Protection Policy audit. You own the app ID, the agent identity, and the audit log. No server: the skill runs Python against SP-API inside the hosted sandbox. Amazon cancelled SP-API developer fees in May 2026.</td></tr>
+      <tr><td>Prices, listing content, A+ content, FBA inbound shipments, review requests</td><td><strong>Your own private SP-API app</strong>, executed by the hands runner on your machine, a small Python job that reads the refresh token from your secrets manager at run time and never writes it to disk</td><td>The roles needed (Pricing, Product Listing, Inventory and Order Tracking, Amazon Fulfillment, Brand Analytics) are non-restricted, so a private self-authorized app registers in days with no Data Protection Policy audit. You own the app ID, the agent identity, and the audit log. The runner executes only approval files whose status the Telegram bot has flipped to approved. Amazon cancelled SP-API developer fees in May 2026.</td></tr>
       <tr><td>Buyer messages, appeals, plans of action, IP responses</td><td><strong>Human</strong></td><td>Buyer-Seller Messaging is a restricted role with a months-long review and suspension risk. Appeals are legally consequential. Agents draft; you send.</td></tr>
     </tbody>
   </table></div>
@@ -278,17 +354,74 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
     <thead><tr><th>Obligation</th><th>How the OS meets it</th></tr></thead>
     <tbody>
       <tr><td>Registered SP-API app, no scraping</td><td>Private app for writes; Amazon Ads MCP and DataDoe for reads; web fetch only for public market intel, never Seller Central.</td></tr>
-      <tr><td>Agent self-identification</td><td>The hands skill sets <code>User-Agent: Agent/AnabtawiOS</code> on every SP-API call.</td></tr>
+      <tr><td>Agent self-identification</td><td>The hands runner sets <code>User-Agent: Agent/AnabtawiOS</code> on every SP-API call.</td></tr>
       <tr><td>12-month action log with inputs and outputs</td><td><code>ledger/actions.jsonl</code> in git, append-only, with request and response payloads. Git history never truncates.</td></tr>
       <tr><td>Human authorization above thresholds</td><td>Tier 2 requires you for every price change, not just those above 20%. Tier 3 covers account configuration.</td></tr>
       <tr><td>No scraped-data pricing</td><td>Pricing uses the SP-API Product Pricing API, Keepa's API, and DataDoe's synced data. No page scraping anywhere in the system.</td></tr>
-      <tr><td>Cease on request</td><td>Vault revoke plus deployment pause. Documented as the first step in the runbook.</td></tr>
+      <tr><td>Cease on request</td><td>Pause every agent in the control plane, revoke the DataDoe key and Ads token, stop the hands runner. First step in the runbook.</td></tr>
     </tbody>
   </table></div>
 </section>
 
+<section id="box">
+  <h2><span class="n">09</span>The box and its operating contract</h2>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Concern</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Machine</td><td>Mac mini, base model, at home or the office</td><td>Both subscription CLIs need a browser to authenticate and re-authenticate; a walk-up machine makes that five minutes. Four to six watts idle. A Linux mini PC is the equal alternative if you prefer systemd.</td></tr>
+      <tr><td>Scheduling</td><td>Paperclip heartbeats; launchd user agents for the control plane, the hands runner, and the Telegram bot</td><td>User agents, not daemons, so the CLIs find keychain credentials. Sleep disabled.</td></tr>
+      <tr><td>Isolation</td><td>Docker for Paperclip, Postgres, LiteLLM, and any MCP server; each department's CLI in its own working directory with only its <code>.mcp.json</code>; Claude Code's own sandbox on</td><td>A compromised Advertising run must not read Finance's secrets. Per-department MCP scoping is the boundary.</td></tr>
+      <tr><td>Secrets</td><td>1Password service account with <code>op run</code>, or self-hosted Infisical</td><td>Secrets are injected into the process at run time and never sit in a file. Monthly rotation is a vault action.</td></tr>
+      <tr><td>Network</td><td>Tailscale; nothing listens on a public address</td><td>The OpenClaw exposure crisis is the cautionary case. The Paperclip UI and the wiki preview are reachable only on the tailnet.</td></tr>
+      <tr><td>Monitoring</td><td>healthchecks.io free tier as an off-box dead-man switch per department; failures posted to the same Telegram bot; Paperclip's cost and run views</td><td>An off-box check still fires when the whole machine is down.</td></tr>
+      <tr><td>Backup</td><td>Git to GitHub; restic to Backblaze B2 for Docker volumes and vault files</td><td>Full recovery on a new machine in under an hour, plus re-authenticating the CLIs.</td></tr>
+      <tr><td>Drift</td><td>Pin every CLI, image, and MCP server version; disable auto-updaters; a weekly ops check that reports available updates and never applies them</td><td>The MCP spec of July 28, 2026 removed the session handshake; a silent client update against an old server is the kind of breakage that erodes trust.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><p><strong>The contract.</strong> Six to ten hours to set up. One to three hours a month after that, mostly reading the weekly ops report and applying a pinned update when you choose. Plus the irreducible item: re-authenticating Claude Code or Codex a few times a year when a failed-run alert says so. Zero maintenance exists only on API billing; this is the price of subscription economics, and it is small.</p></div>
+</section>
+
+<section id="knowledge">
+  <h2><span class="n">10</span>Knowledge, approvals, and the family wiki</h2>
+<pre>anabtawi-company/
+├── AGENTS.md                  # constitution: mission, targets, tiers, guardrails, kill switch
+├── CLAUDE.md                  # one line: @AGENTS.md
+├── departments/&lt;dept&gt;/
+│   ├── AGENTS.md              # charter and rules
+│   ├── .mcp.json              # the only tools this department may use
+│   ├── skills/&lt;skill&gt;/SKILL.md
+│   └── memory/MEMORY.md, YYYY-MM-DD.md
+├── state/                     # inventory.md cash.md ads.md prices.md catalog.md health.md calendar.md
+├── requests/&lt;dept&gt;/inbox/     # typed requests, mirrored as control-plane tickets
+├── approvals/pending|approved|rejected|expired/   # durable approval files with YAML front matter
+├── products/, suppliers/, markets/, playbooks/
+├── ledger/actions.jsonl, decisions.md, kpis.csv   # DuckDB queries these directly
+├── briefs/, meetings/
+└── docs/ + mkdocs.yml         # the wiki, built on push</pre>
+  <ul>
+    <li><strong>Approvals.</strong> A proposal is a file with status pending, a payload, reasoning, and an expiry. The Telegram bot, long polling, allowlisted to your chat ID, posts it with Approve and Reject buttons and a second confirm tap for anything that moves money. A tap flips the file's status and commits. The hands runner executes only files in the approved folder. This survives any restart and any change of orchestrator, and git is the audit trail.</li>
+    <li><strong>Brief.</strong> Short chunked Telegram messages within the 4,096-character limit, linking to the full brief page on the wiki.</li>
+    <li><strong>Wiki.</strong> MkDocs with the Material theme, built by a GitHub Action on every push, hosted on Cloudflare Pages on a custom domain behind Cloudflare Access with an email allow-list. Free for up to 50 users, no server, no VPN for your father and brother.</li>
+    <li><strong>Ledgers.</strong> Append-only JSONL for actions, CSV snapshots for KPIs, DuckDB for queries over the files. No database until concurrent writers or row-level access make one necessary. DataDoe's BigQuery backfill is the two-year history if you want SQL over raw Amazon data.</li>
+    <li><strong>Compounding.</strong> Weekly synthesis of observations into patterns with provenance links; automatic confidence decay for anything not reinforced in 90 days; the monthly review tries to falsify each playbook against the last 30 days of outcomes rather than only confirm it; a validation verdict is stored as its own record.</li>
+    <li><strong>Search.</strong> ripgrep until the repo outgrows it, then a local index such as memsearch or sqlite-vec. Never a hosted memory vendor.</li>
+    <li><strong>Second brand.</strong> One repo per brand, shared skills as a pinned git submodule, one Paperclip organisation per brand, separate credentials and a separate Telegram chat per brand.</li>
+  </ul>
+</section>
+
+<section id="code">
+  <h2><span class="n">11</span>The only custom code</h2>
+  <p>Three scripts, together under 500 lines, each replaceable in an afternoon. Everything else is bought, open source, or text.</p>
+  <ol>
+    <li><strong>Hands runner</strong>, Python, about 200 lines. Watches <code>approvals/approved/</code>, executes each file's action through the private SP-API app with the <code>Agent/AnabtawiOS</code> header, writes the result to the ledger, moves the file. Secrets injected by the vault at run time.</li>
+    <li><strong>Telegram bot</strong>, Python, about 120 lines. Long polling, one allowlisted chat ID, posts pending approvals with buttons, second tap for money, flips file status and commits, posts the brief in chunks, relays failure alerts.</li>
+    <li><strong>Ops check</strong>, shell, about 60 lines. Weekly: diffs installed CLI, image, and MCP server versions against upstream, checks disk and healthchecks status, posts a report. Never applies anything.</li>
+  </ol>
+  <p>Anything beyond this is a sign the design is drifting back to v1, and should be questioned in the Monday review.</p>
+</section>
+
 <section id="datadoe">
-  <h2><span class="n">07</span>DataDoe, fully</h2>
+  <h2><span class="n">12</span>DataDoe, fully</h2>
   <p>DataDoe is built by Deltologic, a Polish marketplace technology agency of about 30 engineers founded in 2020. It began as a chat copilot in 2025 and repositioned in 2026 as an "Amazon data and action layer for AI". Its public GitHub repository is a schema stub for MCP registries, not the server, so the product is closed and hosted only. The tool contract in that stub is genuine, and it is the source for the capability list below. DataDoe's own website was blocked from this environment, so pricing and features from its pages are reported from search excerpts and marked accordingly.</p>
 
   <h3>What it connects</h3>
@@ -343,7 +476,7 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
 </section>
 
 <section id="tools">
-  <h2><span class="n">08</span>Tools per department</h2>
+  <h2><span class="n">13</span>Tools per department</h2>
   <p>Each table is a buy or skip decision with the reason, and the data the tool feeds the department each week. Prices are as reported in September 2026 and should be confirmed at signup.</p>
 
   <h3>Advertising</h3>
@@ -454,23 +587,9 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
   </table></div>
 </section>
 
-<section id="grok">
-  <h2><span class="n">09</span>Grok verdict</h2>
-  <p>Your idea was that Grok could run the always-on, communicating agents with monitoring, and Claude would be for your working sessions. Here is what the research found, with the caveat that xAI's own sites were blocked from this environment, so every Grok claim is reported from press and forums rather than read from xAI directly.</p>
-  <div class="tbl wide"><table>
-    <thead><tr><th>Product</th><th>What it is</th><th>Fit for unattended departments</th></tr></thead>
-    <tbody>
-      <tr><td>Grok Bot, beta since August 11, 2026</td><td>Always-on agents on a persistent cloud computer that log into your tools with your credentials, taught routines by demonstration. Access gated to premium tiers and shifting.</td><td>All bots on an account share one cloud computer, so one compromised session reaches every credential. No API to create, schedule, or monitor bots. Early users report it as nearly unusable in places. Not something to put a real Amazon account behind today.</td></tr>
-      <tr><td>Grok Tasks and Automations</td><td>Consumer scheduler inside the Grok app: daily, weekly, email-triggered jobs with connectors and bring-your-own MCP.</td><td>Fine for a digest, but a chat-app feature with no API and unpublished limits.</td></tr>
-      <tr><td>xAI API</td><td>OpenAI-compatible, hosted web and X search, code execution, real MCP client support that could reach Amazon Ads MCP or DataDoe. Competitive tool-use benchmarks, weaker on harder agentic benchmarks, documented tool-calling reliability complaints.</td><td>A credible model, but no hosted scheduling, no memory stores, no credential vaults, no multi-agent coordinator, no session budgets. You would rebuild the platform layer yourself, which is v1 again.</td></tr>
-    </tbody>
-  </table></div>
-  <div class="callout"><p><strong>Verdict.</strong> Grok does not solve the communication problem, because the communication problem is a design problem, not a vendor problem, and the design in section 04 runs natively on Managed Agents. Splitting the company across two vendors means two memory systems, two connector sets, and two audit trails to keep in sync, which is the drift v2 exists to avoid. Keep Claude as the platform. Revisit Grok in six months as a possible model swap inside specific well-tested department runs if token cost becomes the binding constraint. Cancel the Grok subscription if you keep it only for this.</p></div>
-</section>
-
 <section id="calendar">
-  <h2><span class="n">10</span>The operating calendar</h2>
-  <p>Times are Asia/Jerusalem. Amazon's day closes at midnight Toronto, which is 07:00 for you. Each daily slot is a scheduled deployment; departments read their inbox first, then the state files, then do their work, then update their state file.</p>
+  <h2><span class="n">14</span>The operating calendar</h2>
+  <p>Times are Asia/Jerusalem. Amazon's day closes at midnight Toronto, which is 07:00 for you. Each daily slot is one department heartbeat in the control plane: the department's CLI starts in the repo, answers its inbox, reads the state files, does its work through MCP, writes its state file, commits, and pushes.</p>
   <h3>Daily</h3>
   <div class="tbl wide"><table>
     <thead><tr><th class="m">Time</th><th>Department</th><th>Task</th><th>Output</th><th>Tier</th></tr></thead>
@@ -487,14 +606,14 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
   </table></div>
   <h3>Weekly, monthly, quarterly</h3>
   <ul>
-    <li><strong>Monday:</strong> Finance weekly P&amp;L and 8-week cash; Supply Chain 12-week forecast and PO proposals; Advertising scale and cut; Catalog audits 3 SKUs; Intel competitor report; Customer quality memo; Chief of Staff chairs the business review with all departments as a multi-agent session and produces the pack for your 90 minutes.</li>
+    <li><strong>Monday:</strong> Finance weekly P&amp;L and 8-week cash; Supply Chain 12-week forecast and PO proposals; Advertising scale and cut; Catalog audits 3 SKUs; Intel competitor report; Customer quality memo; Chief of Staff produces the review pack overnight as a headless Claude Code run that spawns one subagent per department; the review itself is your 90 minutes in an interactive session over that pack.</li>
     <li><strong>Monthly, first business day:</strong> Finance close in QuickBooks via A2X; sales and operations planning meeting where POs are sized against cash and the launch calendar; Expansion gate check; tier promotions and demotions; wiki pruning.</li>
     <li><strong>Quarterly:</strong> strategy and targets; seasonal plan; brand onboarding decisions. Ramadan 2027 begins about February 8, so Q4 2026 is the Ramadan plan.</li>
   </ul>
 </section>
 
 <section id="growth">
-  <h2><span class="n">11</span>Growth program</h2>
+  <h2><span class="n">15</span>Growth program</h2>
   <div class="kv wide">
     <div><div class="k">Today</div><div class="v">$8–10k / mo</div><div class="s">Amazon CA, 10–15 winning SKUs</div></div>
     <div><div class="k">Canada, disciplined</div><div class="v">$20k / mo</div><div class="s">by March 2027, plus 10 activated SKUs</div></div>
@@ -524,81 +643,78 @@ code{font-family:var(--mono);font-size:.86em;background:var(--line-2);padding:1p
 </section>
 
 <section id="build">
-  <h2><span class="n">12</span>The 30-day build, together</h2>
+  <h2><span class="n">16</span>The 30-day build, together</h2>
   <div class="wide">
-    <div class="phase"><div class="w">Week 1<br>Sep 3–9</div><div><div class="h">Constitution, connectors, private app, first brief</div><div class="b">Create the company repo. Write COMPANY.md with targets, tiers, guardrail numbers, and the kill switch. Register the private SP-API app with the non-restricted roles and self-authorize. Apply for Ads API access. Connect DataDoe, Amazon Ads MCP, Keepa, QuickBooks MCP. Seed dossiers for the top 15 SKUs from DataDoe exports. Run the first morning brief by hand in a session and tune it until you would read it daily.<ul><li>Exit: a brief you like, from live data, with a decision queue. App registered. FDA agent and accountant engaged.</li></ul></div></div></div>
-    <div class="phase"><div class="w">Week 2<br>Sep 10–16</div><div><div class="h">Departments live on Managed Agents at Tier 0</div><div class="b">Create the department agents from their charters, the vault, memory stores, and the daily deployments with budgets. Write the state files and inbox schema. First automated briefs. First Monday review as a multi-agent session.<ul><li>Exit: 7 consecutive automated briefs, first review pack, every department writing its state file.</li></ul></div></div></div>
-    <div class="phase"><div class="w">Week 3<br>Sep 17–23</div><div><div class="h">Act on Canada</div><div class="b">Advertising to Tier 1 for hygiene through the Ads MCP. The hands skill executes the first approved Tier 2 actions through the private app. Catalog audits begin. Finance delivers the first weekly P&amp;L from DataDoe and the first A2X settlement posting. Supply Chain's first PO proposals with Freightos landed cost. Reimbursement service connected.<ul><li>Exit: first approved and executed price change and listing fix in the ledger with the Agent user-agent header.</li></ul></div></div></div>
-    <div class="phase"><div class="w">Week 4<br>Sep 24–30</div><div><div class="h">Expansion program and first ratchet review</div><div class="b">Expansion writes the dated US plan and the Walmart checklist. First sales and operations planning meeting. September close. Chief of Staff proposes the first tier promotions. Open items from section 14 closed or assigned.<ul><li>Exit: the company runs on the calendar; the US plan has owners and dates.</li></ul></div></div></div>
+    <div class="phase"><div class="w">Week 1</div><div><div class="h">Box, constitution, connectors, first brief</div><div class="b">Mac mini set up: auto-login, sleep off, Tailscale, Docker, 1Password service account, healthchecks. Claude Code setup token and Codex device login. Company repo with the constitution and eight department folders. Register the private SP-API app; apply for Ads API access. Connect DataDoe, Amazon Ads MCP, Keepa, QuickBooks MCP. Seed the top 15 product dossiers from DataDoe exports. Run the first brief by hand from a session until you would read it daily. Engage the FDA agent and the cross-border accountant.<ul><li>Exit: a brief you like, from live data, with a decision queue. Both CLIs authenticated headless. App registered.</li></ul></div></div></div>
+    <div class="phase"><div class="w">Week 2</div><div><div class="h">Paperclip live, departments at Tier 0</div><div class="b">Paperclip from Compose, bound to the tailnet, one organisation, eight agents with roles, budgets, and heartbeats at the calendar times. Adapters set per the allocation. Telegram bot and approvals folder in place. First automated briefs. Consumption measured from both subscriptions daily.<ul><li>Exit: seven consecutive automated briefs, every department writing its state file, capacity numbers real.</li></ul></div></div></div>
+    <div class="phase"><div class="w">Week 3</div><div><div class="h">Act on Canada</div><div class="b">Advertising to Tier 1 through the Ads MCP. Hands runner executes the first approved Tier 2 actions through the private app, with the agent identification header, into the ledger. Catalog audits begin. Finance's first weekly P&amp;L from DataDoe and first A2X posting. Supply Chain's first PO proposals with Freightos landed cost. Reimbursement service connected. First Monday meeting as a headless Chief of Staff run with subagents.<ul><li>Exit: first executed price change and listing fix in the ledger; first meeting minutes.</li></ul></div></div></div>
+    <div class="phase"><div class="w">Week 4</div><div><div class="h">Expansion, ops, ratchet</div><div class="b">Expansion writes the dated US plan and the Walmart checklist. First sales and operations planning meeting. September close. Weekly ops-check job live. Wiki live for the family. Chief of Staff proposes the first tier promotions. Paperclip exit criteria reviewed against its first month.<ul><li>Exit: the company runs on the calendar; the US plan has owners and dates; you know what the system costs in subscription capacity.</li></ul></div></div></div>
   </div>
 </section>
 
 <section id="cost">
-  <h2><span class="n">13</span>Cost</h2>
+  <h2><span class="n">17</span>Cost</h2>
   <div class="tbl"><table>
     <thead><tr><th>Item</th><th class="m">Monthly</th><th>Note</th></tr></thead>
     <tbody>
-      <tr><td>Claude Max</td><td class="m">$200</td><td>Already paid. Your cockpit.</td></tr>
-      <tr><td>Managed Agents usage</td><td class="m">$150–400</td><td>Estimate: 8 departments daily plus weekly meetings, mostly Sonnet 5 with Opus 5 for the Chief of Staff and advisor. Budget-capped per deployment.</td></tr>
+      <tr><td>Claude Max 20x</td><td class="m">$200</td><td>Already paid. Four departments plus your own sessions.</td></tr>
+      <tr><td>ChatGPT Pro</td><td class="m">$100–200</td><td>Confirm your current tier. Plus at $20 is likely too tight for four departments.</td></tr>
+      <tr><td>SuperGrok</td><td class="m">$0 extra or cancel</td><td>Only useful for one credential-free research department. Cancel if that is not worth it.</td></tr>
+      <tr><td>API fallback via LiteLLM</td><td class="m">$0–100</td><td>Metered only when a weekly cap is hit. Budget-capped in the router.</td></tr>
+      <tr><td>Mac mini</td><td class="m">one-time $600–900</td><td>Electricity about $2 a month.</td></tr>
       <tr><td>DataDoe</td><td class="m">$97</td><td>Read layer, Brand Analytics, alerts, BigQuery backfill.</td></tr>
-      <tr><td>Keepa</td><td class="m">~$55</td><td>Entry tier, about €49.</td></tr>
-      <tr><td>QuickBooks Online Plus + A2X</td><td class="m">$128</td><td>Plus $79 for the A2X Walmart plan at Walmart launch.</td></tr>
-      <tr><td>Helium 10 Diamond</td><td class="m">$200–360</td><td>Only during launch sprints; confirm the plan that bundles the MCP.</td></tr>
-      <tr><td>Nova Analytics trial, SageMailer</td><td class="m">$0–40</td><td>Trial one month; keep only if it beats DataDoe on profit accuracy.</td></tr>
+      <tr><td>Keepa</td><td class="m">~$55</td><td>Entry tier.</td></tr>
+      <tr><td>QuickBooks Online Plus + A2X</td><td class="m">$128</td><td>Plus $79 for the A2X Walmart plan later.</td></tr>
+      <tr><td>Helium 10 Diamond</td><td class="m">$200–360</td><td>Launch sprints only.</td></tr>
+      <tr><td>1Password, Backblaze, Cloudflare, healthchecks, Tailscale</td><td class="m">~$5–15</td><td>Free tiers cover most of it.</td></tr>
       <tr><td>Reimbursement recovery</td><td class="m">25% of recovered</td><td>No fixed cost.</td></tr>
-      <tr><td>FDA agent, cross-border accountant</td><td class="m">project fees</td><td>Unverified; quotes are an open item.</td></tr>
-      <tr><td><strong>Run rate</strong></td><td class="m"><strong>$630–1,280</strong></td><td>Lower end outside launch sprints. Against a business planned to add $10k+ a month in Canada before the US.</td></tr>
+      <tr><td><strong>Run rate</strong></td><td class="m"><strong>$585–1,155</strong></td><td>Lower end outside launch sprints. Subscriptions you already hold are most of it.</td></tr>
     </tbody>
   </table></div>
 </section>
 
 <section id="open">
-  <h2><span class="n">14</span>Open items and what could not be verified</h2>
-  <p>Honest accounting of the research limits. Each is assigned in week one.</p>
+  <h2><span class="n">18</span>Open items and what could not be verified</h2>
   <ul>
-    <li><strong>Grocery and Gourmet category requirements</strong> for CA and US: ungating, meltables, temperature rules, certification claims such as Halal or Kosher. The search budget ran out before this was verified. Highest priority, because it can gate the January launch independent of any tool. Owner: Account Health, week one, with the FDA agent.</li>
-    <li><strong>US nutrition label rules</strong> and whether your Canadian packaging needs separate US SKUs. Owner: Catalog with the FDA agent.</li>
-    <li><strong>Compliance consultant names and costs.</strong> Registrar Corp appeared as an FDA content publisher; fit and price unconfirmed. Owner: you, three quotes.</li>
-    <li><strong>The Agent Policy verbatim text.</strong> Obligations are consistent across six summaries but were not read from the agreement page. Owner: Account Health, read Section 19 in Seller Central and file it in the repo.</li>
-    <li><strong>DataDoe in practice:</strong> real sync lag, ad history depth, whether exports count against the 2,000 action tokens, Walmart support. Owner: week-one test in your account.</li>
-    <li><strong>Helium 10 plan pricing</strong> and which tier bundles the MCP; reports conflict between about $200 and $360. Owner: confirm at signup.</li>
-    <li><strong>Amazon Ads MCP in Canada.</strong> Coverage is implied by Amazon's own US plus Canada example, not documented. Owner: verify on connection.</li>
-    <li><strong>Grok claims</strong> are all secondary-sourced. Not blocking, since the verdict does not depend on Grok.</li>
+    <li><strong>Anthropic's "ordinary individual usage" boundary.</strong> The letter permits the design; the spirit is untested at this volume. Owner: you, one email to Anthropic sales in week one describing the use.</li>
+    <li><strong>OpenAI's stance on scheduled Codex use</strong> on a personal plan is unwritten either way. Owner: measure usage in week one and keep the API fallback funded.</li>
+    <li><strong>Paperclip's Telegram delivery and MCP gateway details.</strong> Confirmed from the README, not exercised. Owner: week-two install decides whether the bridge is a config or the 120-line bot.</li>
+    <li><strong>Grok Build fix status.</strong> Re-check for a code-level removal of the upload path and a post-mortem before any use.</li>
+    <li><strong>MCP spec migration.</strong> Confirm DataDoe, Amazon Ads MCP, Keepa, and QuickBooks servers against the July 28, 2026 spec that the pinned CLI versions implement.</li>
+    <li><strong>Grocery category requirements and US nutrition labelling</strong> remain the highest-priority business open item, unchanged from v2.1. Owner: Account Health with the FDA agent, week one.</li>
+    <li><strong>Helium 10 tier that bundles the MCP</strong>, and DataDoe's sync lag and export token accounting. Owner: confirm at signup and in the week-one test.</li>
   </ul>
 </section>
 
 <section id="decide">
-  <h2><span class="n">15</span>Decisions I need from you</h2>
+  <h2><span class="n">19</span>Decisions I need from you</h2>
   <ol>
-    <li><strong>Runtime.</strong> Managed Agents for unattended departments from day one, Claude Code as your cockpit, Routines only for read-only digests. I recommend this given the no-approval-prompt finding. Say if you want to start on Routines anyway for cost.</li>
-    <li><strong>Write path.</strong> Private SP-API app plus the hands skill for listings, prices, and shipments; Amazon Ads MCP for ads; DataDoe reads only. Confirm, or tell me to use DataDoe writes.</li>
-    <li><strong>Grok.</strong> Single vendor as recommended, or you want a Grok experiment kept alive.</li>
+    <li><strong>Control plane.</strong> Paperclip with the exit criteria in section 07, or n8n from day one. I recommend Paperclip.</li>
+    <li><strong>ChatGPT tier.</strong> Which plan you hold. Four departments on Codex realistically want Pro.</li>
+    <li><strong>Grok.</strong> One isolated research department, or cancel the subscription. I recommend cancel until xAI ships a verified fix.</li>
+    <li><strong>The box.</strong> Mac mini or a Linux mini PC, and where it sits.</li>
+    <li><strong>Secrets.</strong> 1Password, if the family already uses it, or self-hosted Infisical.</li>
     <li><strong>Guardrail numbers.</strong> Monthly PO ceiling for Tier 2 versus Tier 3, daily ad spend cap, minimum margin floor, per-SKU automated pricing bands.</li>
-    <li><strong>Account facts.</strong> North America unified account, Brand Registry CA and US, Walmart CA or US, Professional plan, GST/HST number on file, CFIA licence status.</li>
-    <li><strong>Timezone and brief time.</strong> Asia/Jerusalem, 07:00 assumed.</li>
-    <li><strong>Repo name and GitHub access.</strong> Claude cannot push to your repos until GitHub is reconnected in claude.ai settings. I will create the company repo the moment it is.</li>
+    <li><strong>Account facts.</strong> North America unified account, Brand Registry CA and US, Walmart CA or US, GST/HST number on file, CFIA licence status.</li>
+    <li><strong>GitHub access.</strong> Reconnect the connector so I can create the company repo and push; two commits are still stuck locally.</li>
   </ol>
 </section>
 
 <section id="sources">
-  <h2><span class="n">16</span>Sources</h2>
-  <p class="note">Primary sources used across the seven surveys. Vendor sites blocked from this environment are cited via search excerpts and marked reported in the survey files.</p>
+  <h2><span class="n">20</span>Sources</h2>
+  <p class="note">Twelve research surveys, about 75,000 words, are in the repo under <code>docs/research/</code> with every claim tagged verified, reported, or unknown. Primary sources most load-bearing for v3:</p>
   <ul class="sources">
-    <li><a href="https://github.com/Deltologic/datadoe-mcp">DataDoe MCP schema stub and tool contract (GitHub)</a></li>
-    <li><a href="https://www.datadoe.com/pricing">DataDoe pricing</a> · <a href="https://www.datadoe.com/platform/data-layer">DataDoe data layer</a></li>
-    <li><a href="https://advertising.amazon.com/library/news/amazon-ads-mcp-server-open-beta">Amazon Ads MCP Server open beta</a> · <a href="https://digiday.com/media-buying/ad-tech-briefing-amazon-launches-mcp-server-for-agent-driven-advertising/">Digiday coverage</a> · <a href="https://sentrykit.com/blog/amazon-ads-mcp-server-sellers/">what the Ads MCP cannot see</a></li>
-    <li><a href="https://sellercentral.amazon.com/seller-forums/discussions/t/84e3f6b1-42f7-4cf3-a189-a5cc8d78d838">BSA updates effective March 4, 2026 (Seller Central forum)</a> · <a href="https://ppc.land/amazons-new-ai-agent-rules-shake-up-sellers-before-march-4-deadline/">ppc.land analysis</a> · <a href="https://www.ecommercebytes.com/2026/02/18/amazon-sellers-have-2-weeks-to-ensure-compliance-of-tools-they-use/">EcommerceBytes</a></li>
-    <li><a href="https://raw.githubusercontent.com/amzn/selling-partner-api-models/main/models/notifications-api-model/notifications.json">SP-API Notifications model (verified)</a> · <a href="https://developer-docs.amazon.com/sp-api/docs/roles-in-the-selling-partner-api">SP-API roles</a> · <a href="https://developer-docs.amazon.com/sp-api/changelog/update-added-new-search-query-performance-and-search-catalog-performance-analytics-report-types">Brand Analytics report types via SP-API</a></li>
-    <li><a href="https://novadata.io/resources/news/amazon-cancels-sp-api-fees-may-2026">SP-API developer fees cancelled, May 2026</a> · <a href="https://novadata.io/amazon-mcp-tools">Nova Analytics MCP tools</a></li>
-    <li><a href="https://github.com/intuit/quickbooks-online-mcp-server">Intuit QuickBooks Online MCP server</a> · <a href="https://www.capterra.ca/software/173271/a2x-accounting">A2X pricing</a></li>
-    <li><a href="https://www.carbon6.io/blog/amazon-reimbursement-policy/">Amazon reimbursement policy changes</a> · <a href="https://revenuegeeks.com/software/getida">Getida pricing</a></li>
-    <li><a href="https://www.registrarcorp.com/blog/food-beverage/food-facility-registration/must-fsvp-food-importers-register-fda/">FDA facility registration and FSVP</a> · <a href="https://inspection.canada.ca/en/food-licences/food-business-activities">CFIA licensing</a> · <a href="https://www.cbsa-asfc.gc.ca/publications/cn-ad/cn24-03-eng.html">CBSA customs notice 24-03</a></li>
-    <li><a href="https://jonescosman.com/does-amazon-collect-and-pay-sales-tax-gst-for-sellers-on-amazon-canada.html">GST/HST and Amazon Canada</a> · <a href="https://beancount.io/blog/2026/07/13/canada-gst-hst-cross-border-online-sellers-guide">worldwide registration threshold</a></li>
-    <li><a href="https://revenuegeeks.com/software/helium-10/api">Helium 10 API access</a> · <a href="https://www.junglescout.com/resources/articles/jungle-scout-api/">Jungle Scout API</a></li>
-    <li><a href="https://github.com/luke-nielsen/walmart-mcp">walmart-mcp (verified)</a> · <a href="https://developer.walmart.com/advertising-partners-search/docs/introduction-to-walmart-connect-ads-apis">Walmart Connect Ads API access</a></li>
-    <li><a href="https://platform.claude.com/docs/en/managed-agents/overview">Claude Managed Agents overview</a> · <a href="https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration">multi-agent orchestration</a> · <a href="https://code.claude.com/docs/en/routines">Claude Code Routines</a></li>
-    <li><a href="https://www.unite.ai/xai-launches-grok-bot-always-on-ai-teammates-with-their-own-cloud-computers/">Grok Bot launch coverage</a> · <a href="https://www.techtimes.com/articles/324176/20260812/grok-bot-launches-any-app-no-api-all-bots-share-one-cloud-computer-every-login.htm">shared cloud computer caveat</a> · <a href="https://www.eesel.ai/blog/grok-bot-review">Grok Bot review</a></li>
-    <li><a href="https://www.sellersprite.com/en/blog/amazon-ai-seller-assistant-agentic-2026">Amazon Seller Assistant agentic features</a></li>
+    <li><a href="https://code.claude.com/docs/en/legal-and-compliance">Claude Code legal and compliance: authentication and credential use</a> (read directly)</li>
+    <li><a href="https://code.claude.com/docs/en/authentication">Claude Code authentication: setup-token, precedence, expiry</a> (read directly)</li>
+    <li><a href="https://github.com/paperclipai/paperclip">Paperclip repository and README</a> (read directly) · <a href="https://github.com/paperclipai/paperclip-docs/blob/main/docs/reference/adapters/codex.md">Codex adapter docs</a></li>
+    <li><a href="https://developers.openai.com/codex/noninteractive">Codex CLI non-interactive mode</a> · <a href="https://9to5mac.com/2026/08/24/openai-restores-5-hour-codex-and-work-limits-for-chatgpt-plus-users/">Plus limits reinstated, August 2026</a></li>
+    <li><a href="https://www.techtimes.com/articles/320671/20260716/grok-build-open-sourced-after-covert-upload-code-exfiltrate-repos-stays.html">Grok Build exfiltration coverage</a> · <a href="https://thinaer.io/blog/ai-data-leakage-what-the-grok-build-leak-actually-proves/">analysis</a></li>
+    <li><a href="https://github.com/google-gemini/gemini-cli/blob/main/docs/resources/quota-and-pricing.md">Gemini CLI quota docs</a> · <a href="https://www.theregister.com/ai-ml/2026/05/20/bye-bye-gemini-cli-google-nudges-devs-toward-antigravity/5243605">Gemini CLI retirement</a></li>
+    <li><a href="https://www.securityweek.com/openclaw-security-issues-continue-as-secureclaw-open-source-tool-debuts/">OpenClaw exposure and CVE-2026-25253</a> · <a href="https://unit42.paloaltonetworks.com/openclaw-ai-supply-chain-risk/">ClawHavoc supply-chain campaign</a></li>
+    <li><a href="https://github.com/anthropics/claude-code/issues/22992">Claude Code headless device-code request</a> · <a href="https://github.com/openai/codex/issues/9253">Codex headless auth issue</a></li>
+    <li><a href="https://docs.litellm.ai/docs/proxy/reliability">LiteLLM proxy routing and budgets</a> · <a href="https://modelcontextprotocol.io/specification/2026-07-28">MCP specification 2026-07-28</a> · <a href="https://github.com/anthropics/skills/blob/main/spec/agent-skills-spec.md">Agent Skills spec</a> · <a href="https://www.morphllm.com/agents-md-guide">AGENTS.md guide</a></li>
+    <li><a href="https://healthchecks.io/docs/">healthchecks.io</a> · <a href="https://www.1password.dev/service-accounts/use-with-1password-cli">1Password service accounts</a> · <a href="https://github.com/humanlayer/12-factor-agents">12-Factor Agents</a></li>
+    <li><a href="https://github.com/Deltologic/datadoe-mcp">DataDoe MCP tool contract</a> · <a href="https://advertising.amazon.com/library/news/amazon-ads-mcp-server-open-beta">Amazon Ads MCP Server</a> · <a href="https://sellercentral.amazon.com/seller-forums/discussions/t/84e3f6b1-42f7-4cf3-a189-a5cc8d78d838">BSA update, March 4, 2026</a></li>
   </ul>
 </section>
 
